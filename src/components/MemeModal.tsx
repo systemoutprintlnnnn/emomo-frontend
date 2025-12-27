@@ -95,7 +95,7 @@ export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
   }, [isOpen, onClose]);
 
   const handleCopyLink = async () => {
-    if (!meme) return;
+    if (!meme?.url) return;
     try {
       await navigator.clipboard.writeText(meme.url);
       setCopied(true);
@@ -106,7 +106,7 @@ export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
   };
 
   const handleDownload = () => {
-    if (!meme) return;
+    if (!meme?.url) return;
     const a = document.createElement('a');
     a.href = meme.url;
     a.download = `meme-${meme.id}.${meme.format || 'jpg'}`;
@@ -116,7 +116,7 @@ export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
   };
 
   const handleCopyImage = async () => {
-    if (!meme) return;
+    if (!meme?.url) return;
     try {
       const response = await fetch(meme.url);
       const blob = await response.blob();
