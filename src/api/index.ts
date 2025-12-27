@@ -1,13 +1,31 @@
-import type { Meme, SearchResponse, Category, PaginatedResponse } from '../types';
+import type { Meme, SearchResponse, Category, CategoriesResponse, MemesListResponse } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api/v1';
+
+// Helper function to convert SearchResult to Meme format for UI consistency
+function normalizeSearchResults(response: SearchResponse): { results: Meme[]; total: number } {
+  return {
+    results: response.results.map((result) => ({
+      id: result.id,
+      url: result.url,
+      score: result.score,
+      vlm_description: result.description, // map 'description' to 'vlm_description'
+      category: result.category,
+      tags: result.tags,
+      is_animated: result.is_animated,
+      width: result.width,
+      height: result.height,
+    })),
+    total: response.total,
+  };
+}
 
 // Search memes by text query
 export async function searchMemes(
   query: string,
   topK: number = 20,
   category?: string
-): Promise<SearchResponse> {
+): Promise<{ results: Meme[]; total: number }> {
   const response = await fetch(`${API_BASE}/search`, {
     method: 'POST',
     headers: {
@@ -24,7 +42,8 @@ export async function searchMemes(
     throw new Error(`Search failed: ${response.statusText}`);
   }
 
-  return response.json();
+  const data: SearchResponse = await response.json();
+  return normalizeSearchResults(data);
 }
 
 // Get all categories
@@ -35,18 +54,25 @@ export async function getCategories(): Promise<Category[]> {
     throw new Error(`Failed to fetch categories: ${response.statusText}`);
   }
 
-  return response.json();
+  // Backend returns { categories: string[], total: number }
+  const data: CategoriesResponse = await response.json();
+  
+  // Convert string array to Category objects
+  return data.categories.map((name) => ({
+    name,
+    count: undefined, // Backend doesn't provide count per category in this endpoint
+  }));
 }
 
-// Get memes with pagination
+// Get memes with pagination (using limit/offset)
 export async function getMemes(
-  page: number = 1,
-  pageSize: number = 30,
+  limit: number = 30,
+  offset: number = 0,
   category?: string
-): Promise<PaginatedResponse<Meme>> {
+): Promise<MemesListResponse> {
   const params = new URLSearchParams({
-    page: page.toString(),
-    page_size: pageSize.toString(),
+    limit: limit.toString(),
+    offset: offset.toString(),
   });
 
   if (category) {
