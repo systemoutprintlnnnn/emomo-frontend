@@ -9,6 +9,7 @@ interface MemeGridProps {
   onMemeClick?: (meme: Meme) => void;
   emptyMessage?: string;
   searchQuery?: string;
+  title?: string;
 }
 
 // Loading skeleton component
@@ -31,11 +32,21 @@ export default function MemeGrid({
   onMemeClick,
   emptyMessage = '暂无表情包',
   searchQuery,
+  title,
 }: MemeGridProps) {
   // Show loading skeletons
   if (isLoading) {
     return (
       <section className={styles.container}>
+        {title && (
+          <motion.h2
+            className={styles.sectionTitle}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            {title}
+          </motion.h2>
+        )}
         <div className={styles.grid}>
           {Array.from({ length: 12 }).map((_, i) => (
             <SkeletonCard key={i} index={i} />
@@ -76,6 +87,17 @@ export default function MemeGrid({
 
   return (
     <section className={styles.container}>
+      {/* Section title (for recommended section) */}
+      {title && (
+        <motion.h2
+          className={styles.sectionTitle}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {title}
+        </motion.h2>
+      )}
+
       {/* Results count */}
       {searchQuery && (
         <motion.div

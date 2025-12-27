@@ -7,6 +7,15 @@
   padding: var(--space-lg) var(--space-lg) var(--space-3xl);
 }
 
+/* Section title (for recommended section) */
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+}
+
 /* Results info */
 .resultsInfo {
   display: flex;

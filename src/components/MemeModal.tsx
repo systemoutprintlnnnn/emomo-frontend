@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Meme } from '../types';
 import styles from './MemeModal.module.css';
@@ -9,9 +9,73 @@ interface MemeModalProps {
   onClose: () => void;
 }
 
+// 解析标签，提取用户友好的文本
+function parseTag(tag: string): string | null {
+  // 过滤掉 MD5 哈希（32位十六进制字符）
+  if (/^[a-f0-9]{32}$/i.test(tag)) {
+    return null;
+  }
+
+  // 过滤掉纯数字或太短的标签
+  if (/^\d+$/.test(tag) || tag.length < 2) {
+    return null;
+  }
+
+  // 解析格式如 "000Contribution_贡献🇨🇳BQB"
+  // 尝试提取中文部分或有意义的部分
+  let parsed = tag;
+
+  // 移除开头的数字
+  parsed = parsed.replace(/^\d+/, '');
+
+  // 移除末尾的 "BQB"（表情包库标识）
+  parsed = parsed.replace(/BQB$/i, '');
+
+  // 如果有下划线，尝试提取中文部分
+  if (parsed.includes('_')) {
+    const parts = parsed.split('_');
+    // 优先选择包含中文的部分
+    const chinesePart = parts.find(p => /[\u4e00-\u9fa5]/.test(p));
+    if (chinesePart) {
+      parsed = chinesePart;
+    } else {
+      // 否则取最后一个非空部分
+      parsed = parts.filter(p => p.trim()).pop() || parsed;
+    }
+  }
+
+  // 移除表情符号（国旗等）但保留常用表情
+  parsed = parsed.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '');
+
+  // 清理空白
+  parsed = parsed.trim();
+
+  // 如果处理后太短或为空，返回 null
+  if (parsed.length < 2) {
+    return null;
+  }
+
+  return parsed;
+}
+
+// 过滤并处理标签数组
+function formatTags(tags: string[] | undefined): string[] {
+  if (!tags || tags.length === 0) return [];
+
+  const formatted = tags
+    .map(parseTag)
+    .filter((tag): tag is string => tag !== null);
+
+  // 去重
+  return [...new Set(formatted)];
+}
+
 export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+
+  // 格式化标签
+  const displayTags = useMemo(() => formatTags(meme?.tags), [meme?.tags]);
 
   // Close on escape key
   useEffect(() => {
@@ -226,9 +290,9 @@ export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
               </div>
 
               {/* Tags */}
-              {meme.tags && meme.tags.length > 0 && (
+              {displayTags.length > 0 && (
                 <div className={styles.tags}>
-                  {meme.tags.map((tag) => (
+                  {displayTags.map((tag) => (
                     <span key={tag} className={styles.tag}>{tag}</span>
                   ))}
                 </div>

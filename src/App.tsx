@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Header, SearchHero, MemeGrid, MemeModal } from './components';
-import { searchMemes } from './api';
+import { searchMemes, getMemes } from './api';
 import type { Meme } from './types';
 import './App.css';
 
@@ -154,10 +154,29 @@ const DEMO_MEMES: Meme[] = [
 
 function App() {
   const [memes, setMemes] = useState<Meme[]>([]);
+  const [recommendedMemes, setRecommendedMemes] = useState<Meme[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMeme, setSelectedMeme] = useState<Meme | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // 加载推荐表情（首屏）
+  useEffect(() => {
+    const loadRecommendedMemes = async () => {
+      try {
+        const response = await getMemes(12, 0);
+        setRecommendedMemes(response.memes);
+      } catch (error) {
+        console.error('Failed to load recommended memes:', error);
+        // 使用 demo 数据作为后备
+        setRecommendedMemes(DEMO_MEMES.slice(0, 8));
+      } finally {
+        setIsLoadingRecommended(false);
+      }
+    };
+    loadRecommendedMemes();
+  }, []);
 
   // Handle search
   const handleSearch = useCallback(async (query: string) => {
@@ -211,13 +230,22 @@ function App() {
           isLoading={isLoading}
         />
 
-        {hasSearched && (
+        {hasSearched ? (
           <MemeGrid
             memes={memes}
             isLoading={isLoading}
             onMemeClick={handleMemeClick}
             searchQuery={searchQuery}
             emptyMessage="没有找到相关表情包"
+          />
+        ) : (
+          <MemeGrid
+            memes={recommendedMemes}
+            isLoading={isLoadingRecommended}
+            onMemeClick={handleMemeClick}
+            searchQuery=""
+            emptyMessage=""
+            title="推荐表情"
           />
         )}
       </main>

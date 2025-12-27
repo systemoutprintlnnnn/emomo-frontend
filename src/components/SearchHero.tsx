@@ -45,7 +45,7 @@ export default function SearchHero({
 
   const handleTagClick = (tag: string) => {
     setQuery(tag);
-    onSearch(tag);
+    onSearch(tag); // 自动触发搜索
   };
 
   return (
