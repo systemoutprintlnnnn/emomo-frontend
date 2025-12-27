@@ -72,7 +72,7 @@ export default function MemeCard({ meme, index = 0, onClick }: MemeCardProps) {
                 onClick={(e) => {
                   e.stopPropagation();
                   // Copy image URL
-                  navigator.clipboard.writeText(meme.url || meme.original_url);
+                  navigator.clipboard.writeText(meme.url);
                 }}
                 title="复制链接"
               >
@@ -89,7 +89,7 @@ export default function MemeCard({ meme, index = 0, onClick }: MemeCardProps) {
                   e.stopPropagation();
                   // Download image
                   const a = document.createElement('a');
-                  a.href = meme.url || meme.original_url;
+                  a.href = meme.url;
                   a.download = `meme-${meme.id}.${meme.format || 'jpg'}`;
                   a.click();
                 }}
