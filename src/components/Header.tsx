@@ -43,7 +43,7 @@ export default function Header({ onLogoClick }: HeaderProps) {
 
           {/* GitHub link */}
           <motion.a
-            href="https://github.com"
+            href="https://github.com/systemoutprintlnnnn/emomo"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.githubBtn}
