@@ -134,13 +134,6 @@ export default function MemeCard({ meme, index = 0, onClick }: MemeCardProps) {
           </motion.div>
         )}
       </div>
-
-      {/* Category tag */}
-      {meme.category && (
-        <div className={styles.footer}>
-          <span className={styles.category}>{meme.category}</span>
-        </div>
-      )}
     </motion.div>
   );
 }

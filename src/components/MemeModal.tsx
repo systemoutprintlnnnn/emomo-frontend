@@ -269,12 +269,6 @@ export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
 
               {/* Meta info */}
               <div className={styles.meta}>
-                {meme.category && (
-                  <span className={styles.metaItem}>
-                    <span className={styles.metaLabel}>分类:</span>
-                    <span className={styles.metaValue}>{meme.category}</span>
-                  </span>
-                )}
                 {meme.format && (
                   <span className={styles.metaItem}>
                     <span className={styles.metaLabel}>格式:</span>
