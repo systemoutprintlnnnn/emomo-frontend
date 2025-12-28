@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Header, SearchHero, MemeGrid, MemeModal } from './components';
 import { searchMemes, getMemes } from './api';
 import type { Meme } from './types';
@@ -160,13 +160,17 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMeme, setSelectedMeme] = useState<Meme | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const hasFetchedRef = useRef(false);
 
   // 加载推荐表情（首屏）
   useEffect(() => {
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     const loadRecommendedMemes = async () => {
       try {
         const response = await getMemes(12, 0);
-        setRecommendedMemes(response.memes);
+        setRecommendedMemes(response.results);
       } catch (error) {
         console.error('Failed to load recommended memes:', error);
         // 使用 demo 数据作为后备
