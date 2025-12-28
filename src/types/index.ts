@@ -1,29 +1,31 @@
-// Meme entity (full entity from database)
+// Meme entity - unified format for both search and list results
 export interface Meme {
   id: string;
+  url: string;
+  score?: number; // similarity score from search (0 for list results)
+  description?: string; // description from VLM
+  category?: string;
+  tags?: string[];
+  is_animated: boolean;
+  width?: number;
+  height?: number;
+  // Legacy fields for demo data compatibility
+  vlm_description?: string;
+  original_url?: string;
   source_type?: string;
   source_id?: string;
   storage_key?: string;
-  original_url?: string;
-  url: string;
-  width?: number;
-  height?: number;
   format?: string;
-  is_animated: boolean;
   file_size?: number;
-  vlm_description?: string;
-  tags?: string[];
-  category?: string;
-  score?: number; // similarity score from search
   created_at?: string;
 }
 
-// Search result from backend (subset of Meme fields)
+// Search result from backend (same structure as Meme)
 export interface SearchResult {
   id: string;
   url: string;
   score: number;
-  description: string; // backend uses 'description' instead of 'vlm_description'
+  description: string;
   category: string;
   tags: string[];
   is_animated: boolean;
@@ -56,10 +58,10 @@ export interface CategoriesResponse {
   total: number;
 }
 
-// List memes response from backend
+// List memes response from backend (now unified with SearchResponse format)
 export interface MemesListResponse {
-  memes: Meme[];
-  count: number;
+  results: SearchResult[];
+  total: number;
   limit: number;
   offset: number;
 }

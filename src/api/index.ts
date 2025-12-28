@@ -18,22 +18,21 @@ function getHeaders(contentType?: string): HeadersInit {
   return headers;
 }
 
-// Helper function to convert SearchResult to Meme format for UI consistency
-function normalizeSearchResults(response: SearchResponse): { results: Meme[]; total: number } {
-  return {
-    results: response.results.map((result) => ({
-      id: result.id,
-      url: result.url,
-      score: result.score,
-      vlm_description: result.description, // map 'description' to 'vlm_description'
-      category: result.category,
-      tags: result.tags,
-      is_animated: result.is_animated,
-      width: result.width,
-      height: result.height,
-    })),
-    total: response.total,
-  };
+// Helper function to convert API response to Meme format for UI consistency
+// Both /api/v1/search and /api/v1/memes now return the same format
+function normalizeResults(results: SearchResponse['results']): Meme[] {
+  return results.map((result) => ({
+    id: result.id,
+    url: result.url,
+    score: result.score,
+    description: result.description,
+    vlm_description: result.description, // keep for backward compatibility
+    category: result.category,
+    tags: result.tags,
+    is_animated: result.is_animated,
+    width: result.width,
+    height: result.height,
+  }));
 }
 
 // Search memes by text query
@@ -57,7 +56,10 @@ export async function searchMemes(
   }
 
   const data: SearchResponse = await response.json();
-  return normalizeSearchResults(data);
+  return {
+    results: normalizeResults(data.results),
+    total: data.total,
+  };
 }
 
 // Get all categories
@@ -81,11 +83,13 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 // Get memes with pagination (using limit/offset)
+// Returns results in the same format as searchMemes for consistency
 export async function getMemes(
   limit: number = 30,
   offset: number = 0,
-  category?: string
-): Promise<MemesListResponse> {
+  category?: string,
+  signal?: AbortSignal
+): Promise<{ results: Meme[]; total: number }> {
   const params = new URLSearchParams({
     limit: limit.toString(),
     offset: offset.toString(),
@@ -97,13 +101,18 @@ export async function getMemes(
 
   const response = await fetch(`${API_BASE}/memes?${params}`, {
     headers: getHeaders(),
+    signal,
   });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch memes: ${response.statusText}`);
   }
 
-  return response.json();
+  const data: MemesListResponse = await response.json();
+  return {
+    results: normalizeResults(data.results),
+    total: data.total,
+  };
 }
 
 // Get single meme by ID
