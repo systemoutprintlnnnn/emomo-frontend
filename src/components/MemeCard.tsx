@@ -3,12 +3,33 @@ import { motion } from 'framer-motion';
 import type { Meme } from '../types';
 import styles from './MemeCard.module.css';
 
+/**
+ * Props for the MemeCard component.
+ */
 interface MemeCardProps {
+  /** The meme data to display. */
   meme: Meme;
+  /**
+   * The index of the card in the list, used for staggered animation delays.
+   * @default 0
+   */
   index?: number;
+  /**
+   * Callback function triggered when the card is clicked.
+   * @param meme - The meme data associated with the card.
+   */
   onClick?: (meme: Meme) => void;
 }
 
+/**
+ * A component that displays a single meme card with an image, hover effects, and quick actions.
+ *
+ * @param props - The component props.
+ * @param props.meme - The meme object containing details like URL, description, etc.
+ * @param props.index - The index for animation timing.
+ * @param props.onClick - The click handler for the card.
+ * @returns The rendered MemeCard component.
+ */
 export default function MemeCard({ meme, index = 0, onClick }: MemeCardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);

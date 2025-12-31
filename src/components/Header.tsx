@@ -1,10 +1,25 @@
 import { motion } from 'framer-motion';
 import styles from './Header.module.css';
 
+/**
+ * Props for the Header component.
+ */
 interface HeaderProps {
+  /**
+   * Callback function triggered when the logo is clicked.
+   * Typically used to reset the view or navigate home.
+   */
   onLogoClick?: () => void;
 }
 
+/**
+ * The application header component.
+ * Displays the logo, statistics, and external links (e.g., GitHub).
+ *
+ * @param props - The component props.
+ * @param props.onLogoClick - Handler for logo click events.
+ * @returns The rendered Header component.
+ */
 export default function Header({ onLogoClick }: HeaderProps) {
   return (
     <motion.header

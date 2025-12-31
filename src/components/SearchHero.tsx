@@ -2,9 +2,25 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './SearchHero.module.css';
 
+/**
+ * Props for the SearchHero component.
+ */
 interface SearchHeroProps {
+  /**
+   * Callback function triggered when a search is performed.
+   * @param query - The search query string.
+   */
   onSearch: (query: string) => void;
+  /**
+   * Indicates whether a search is currently in progress.
+   * Controls loading states in the search bar.
+   * @default false
+   */
   isLoading?: boolean;
+  /**
+   * A list of suggested tags to display below the search bar.
+   * @default ['开心', '无语', '狗头', '猫咪', '熊猫头', '沙雕']
+   */
   suggestedTags?: string[];
 }
 
@@ -16,6 +32,16 @@ const placeholders = [
   '还有：猫咪翻白眼',
 ];
 
+/**
+ * The hero section component featuring the main search bar and suggested tags.
+ * Includes animations for visual appeal and placeholder rotation.
+ *
+ * @param props - The component props.
+ * @param props.onSearch - Handler for search submissions.
+ * @param props.isLoading - Whether a search is loading.
+ * @param props.suggestedTags - List of tags to suggest.
+ * @returns The rendered SearchHero component.
+ */
 export default function SearchHero({
   onSearch,
   isLoading = false,

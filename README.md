@@ -1,73 +1,126 @@
-# React + TypeScript + Vite
+# Emomo Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Emomo is a meme search engine application that allows users to find memes using semantic search queries. This frontend application provides a responsive and interactive user interface for searching, browsing, and viewing memes.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Semantic Search**: Find memes by describing them in natural language (e.g., "happy cat", "surprised dog").
+- **Meme Grid**: Browse search results or recommended memes in a responsive grid layout.
+- **Detailed View**: View high-resolution memes in a modal with metadata (tags, source, description).
+- **Interactive UI**: Animated transitions and hover effects using Framer Motion.
+- **Recommendations**: Displays recommended memes on the home page.
+- **Copy & Download**: Easily copy image links or download memes directly.
 
-## React Compiler
+## Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Before you begin, ensure you have the following installed:
 
-## Expanding the ESLint configuration
+- [Node.js](https://nodejs.org/) (v16 or higher recommended)
+- [npm](https://www.npmjs.com/) (usually comes with Node.js)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Installation
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd emomo-frontend-temp
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3. Configure environment variables:
+   Copy `.env.example` to `.env` and update the values if necessary.
+   ```bash
+   cp .env.example .env
+   ```
+
+   - `VITE_API_BASE`: The base URL of the backend API (default: `http://localhost:8080/api/v1`).
+   - `VITE_API_TOKEN`: (Optional) API token for authentication.
+
+## Usage
+
+### Development
+
+To start the development server with Hot Module Replacement (HMR):
+
+```bash
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open your browser and navigate to `http://localhost:5173` (or the port shown in the terminal).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+To build the application for production:
+
+```bash
+npm run build
 ```
+
+The output will be in the `dist/` directory.
+
+### Preview
+
+To preview the production build locally:
+
+```bash
+npm run preview
+```
+
+### Linting
+
+To run ESLint and check for code quality issues:
+
+```bash
+npm run lint
+```
+
+### Testing
+
+To run End-to-End (E2E) tests using Playwright:
+
+```bash
+# Run tests in headless mode
+npm run test
+
+# Run tests with UI runner
+npm run test:ui
+
+# Run tests in headed browser mode
+npm run test:headed
+```
+
+## Project Structure
+
+```
+src/
+├── api/            # API client and service functions
+├── assets/         # Static assets (images, icons)
+├── components/     # React components
+│   ├── Header.tsx      # App header
+│   ├── SearchHero.tsx  # Search bar section
+│   ├── MemeCard.tsx    # Individual meme card
+│   ├── MemeGrid.tsx    # Grid of meme cards
+│   ├── MemeModal.tsx   # Detail view modal
+│   └── ...
+├── types/          # TypeScript type definitions
+├── App.tsx         # Main application component
+├── main.tsx        # Entry point
+└── ...
+```
+
+## Contributing
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/amazing-feature`).
+3. Make your changes.
+4. Commit your changes (`git commit -m 'feat: Add some amazing feature'`).
+5. Push to the branch (`git push origin feature/amazing-feature`).
+6. Open a Pull Request.
+
+## License
+
+[MIT](LICENSE)

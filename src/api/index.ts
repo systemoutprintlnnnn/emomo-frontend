@@ -1,9 +1,22 @@
-import type { Meme, SearchResponse, Category, CategoriesResponse, MemesListResponse } from '../types';
+import type { Meme, SearchResponse, Category, CategoriesResponse, MemesListResponse, SearchResult } from '../types';
 
+/**
+ * The base URL for the API, loaded from environment variables.
+ * Defaults to 'http://localhost:8080/api/v1'.
+ */
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api/v1';
+
+/**
+ * The API token for authentication, loaded from environment variables.
+ */
 const API_TOKEN = import.meta.env.VITE_API_TOKEN || '';
 
-// Generate request headers with optional authentication
+/**
+ * Generates request headers, including the Authorization header if an API token is present.
+ *
+ * @param contentType - The optional Content-Type header value (e.g., 'application/json').
+ * @returns A HeadersInit object containing the configured headers.
+ */
 function getHeaders(contentType?: string): HeadersInit {
   const headers: HeadersInit = {};
 
@@ -18,9 +31,13 @@ function getHeaders(contentType?: string): HeadersInit {
   return headers;
 }
 
-// Helper function to convert API response to Meme format for UI consistency
-// Both /api/v1/search and /api/v1/memes now return the same format
-function normalizeResults(results: SearchResponse['results']): Meme[] {
+/**
+ * Normalizes API search results into the unified `Meme` format for UI consistency.
+ *
+ * @param results - The list of results from the backend (SearchResponse['results']).
+ * @returns An array of normalized `Meme` objects.
+ */
+function normalizeResults(results: SearchResult[]): Meme[] {
   return results.map((result) => ({
     id: result.id,
     url: result.url,
@@ -35,7 +52,15 @@ function normalizeResults(results: SearchResponse['results']): Meme[] {
   }));
 }
 
-// Search memes by text query
+/**
+ * Searches for memes based on a text query.
+ *
+ * @param query - The search query text.
+ * @param topK - The number of top results to return. Defaults to 20.
+ * @param category - An optional category filter.
+ * @returns A promise that resolves to an object containing the list of found memes and the total count.
+ * @throws An error if the search request fails.
+ */
 export async function searchMemes(
   query: string,
   topK: number = 20,
@@ -62,7 +87,12 @@ export async function searchMemes(
   };
 }
 
-// Get all categories
+/**
+ * Retrieves all available meme categories.
+ *
+ * @returns A promise that resolves to an array of `Category` objects.
+ * @throws An error if the request fails.
+ */
 export async function getCategories(): Promise<Category[]> {
   const response = await fetch(`${API_BASE}/categories`, {
     headers: getHeaders(),
@@ -82,8 +112,16 @@ export async function getCategories(): Promise<Category[]> {
   }));
 }
 
-// Get memes with pagination (using limit/offset)
-// Returns results in the same format as searchMemes for consistency
+/**
+ * Retrieves a paginated list of memes.
+ *
+ * @param limit - The maximum number of memes to return. Defaults to 30.
+ * @param offset - The number of memes to skip (for pagination). Defaults to 0.
+ * @param category - An optional category filter.
+ * @param signal - An optional AbortSignal to cancel the request.
+ * @returns A promise that resolves to an object containing the list of memes and the total count.
+ * @throws An error if the request fails.
+ */
 export async function getMemes(
   limit: number = 30,
   offset: number = 0,
@@ -115,7 +153,13 @@ export async function getMemes(
   };
 }
 
-// Get single meme by ID
+/**
+ * Retrieves a single meme by its ID.
+ *
+ * @param id - The unique identifier of the meme.
+ * @returns A promise that resolves to the `Meme` object.
+ * @throws An error if the request fails.
+ */
 export async function getMeme(id: string): Promise<Meme> {
   const response = await fetch(`${API_BASE}/memes/${id}`, {
     headers: getHeaders(),

@@ -152,6 +152,13 @@ const DEMO_MEMES: Meme[] = [
   },
 ];
 
+/**
+ * The main application component.
+ * Orchestrates the Header, SearchHero, MemeGrid, and MemeModal components.
+ * Manages global state for memes, search results, and modal visibility.
+ *
+ * @returns The rendered App component.
+ */
 function App() {
   const [memes, setMemes] = useState<Meme[]>([]);
   const [recommendedMemes, setRecommendedMemes] = useState<Meme[]>([]);
