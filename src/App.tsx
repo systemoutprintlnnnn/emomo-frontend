@@ -5,6 +5,13 @@ import { curatedMemes } from './data/curatedMemes';
 import type { Meme } from './types';
 import './App.css';
 
+/**
+ * The main application component.
+ * Orchestrates the Header, SearchHero, MemeGrid, and MemeModal components.
+ * Manages global state for memes, search results, and modal visibility.
+ *
+ * @returns The rendered App component.
+ */
 function App() {
   const [memes, setMemes] = useState<Meme[]>([]);
   const recommendedMemes = curatedMemes;

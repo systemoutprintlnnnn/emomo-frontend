@@ -3,13 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Meme } from '../types';
 import styles from './MemeModal.module.css';
 
+/**
+ * Props for the MemeModal component.
+ */
 interface MemeModalProps {
+  /** The meme to display in the modal. If null, the modal is hidden. */
   meme: Meme | null;
+  /** Whether the modal is currently open. */
   isOpen: boolean;
+  /** Callback function to close the modal. */
   onClose: () => void;
 }
 
-// 解析标签，提取用户友好的文本
+/**
+ * Parses and cleans a tag string to make it user-friendly.
+ * Filters out hashes, numeric tags, and redundant information.
+ *
+ * @param tag - The raw tag string.
+ * @returns The cleaned tag string, or null if the tag should be discarded.
+ */
 function parseTag(tag: string): string | null {
   // 过滤掉 MD5 哈希（32位十六进制字符）
   if (/^[a-f0-9]{32}$/i.test(tag)) {
@@ -58,7 +70,12 @@ function parseTag(tag: string): string | null {
   return parsed;
 }
 
-// 过滤并处理标签数组
+/**
+ * Formats a list of tags by cleaning them and removing duplicates.
+ *
+ * @param tags - The list of raw tags.
+ * @returns An array of unique, cleaned tags.
+ */
 function formatTags(tags: string[] | undefined): string[] {
   if (!tags || tags.length === 0) return [];
 
@@ -70,6 +87,16 @@ function formatTags(tags: string[] | undefined): string[] {
   return [...new Set(formatted)];
 }
 
+/**
+ * A modal component that displays a meme in detail.
+ * Allows downloading, copying image/link, and viewing metadata.
+ *
+ * @param props - The component props.
+ * @param props.meme - The meme object to display.
+ * @param props.isOpen - Controls the visibility of the modal.
+ * @param props.onClose - Handler to close the modal.
+ * @returns The rendered MemeModal component.
+ */
 export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
