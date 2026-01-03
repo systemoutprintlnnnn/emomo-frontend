@@ -34,6 +34,8 @@ export default function SearchHero({
       }, 3000);
       return () => clearInterval(timer);
     }
+    // Explicitly return undefined when condition is false
+    return undefined;
   }, [isFocused, query]);
 
   const handleSubmit = (e: React.FormEvent) => {

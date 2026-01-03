@@ -39,6 +39,26 @@
   object-fit: cover;
 }
 
+/* Image error */
+.imageError {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  padding: var(--space-md);
+}
+
+.imageError svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-sm);
+  opacity: 0.5;
+}
+
 /* Hover overlay */
 .overlay {
   position: absolute;

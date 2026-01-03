@@ -181,19 +181,10 @@ function App() {
     hasFetchedRef.current = true;
 
     const loadRecommendedMemes = async () => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/7a83c483-fce1-4f8b-beaf-98cf80f7146c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:loadRecommendedMemes', message: 'Starting loadRecommendedMemes', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D' }) }).catch(() => {});
-      // #endregion
       try {
         const response = await getMemes(12, 0);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/7a83c483-fce1-4f8b-beaf-98cf80f7146c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:loadRecommendedMemes', message: 'getMemes success', data: { resultsCount: response.results.length, total: response.total }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D' }) }).catch(() => {});
-        // #endregion
         setRecommendedMemes(response.results);
       } catch (error) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/7a83c483-fce1-4f8b-beaf-98cf80f7146c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:loadRecommendedMemes', message: 'getMemes error', data: { error: String(error), errorName: (error as Error).name }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D' }) }).catch(() => {});
-        // #endregion
         console.error('Failed to load recommended memes:', error);
         // 使用 demo 数据作为后备
         setRecommendedMemes(DEMO_MEMES.slice(0, 8));
@@ -216,9 +207,6 @@ function App() {
 
   // Handle search with streaming progress
   const handleSearch = useCallback(async (query: string) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/7a83c483-fce1-4f8b-beaf-98cf80f7146c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:handleSearch', message: 'handleSearch called', data: { query }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => {});
-    // #endregion
     // Cancel any existing search
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -248,9 +236,6 @@ function App() {
         query,
         20,
         (event: SearchProgressEvent) => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/7a83c483-fce1-4f8b-beaf-98cf80f7146c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:handleSearch:onProgress', message: 'Progress event received', data: { stage: event.stage, hasResults: !!event.results }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => {});
-          // #endregion
           // Update search state based on event
           if (event.stage === 'thinking') {
             // Accumulate thinking text for typewriter effect
@@ -268,18 +253,12 @@ function App() {
             }
           } else if (event.stage === 'complete') {
             // Search complete - update results
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/7a83c483-fce1-4f8b-beaf-98cf80f7146c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:handleSearch:complete', message: 'Search complete', data: { resultsCount: event.results?.length, total: event.total }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => {});
-            // #endregion
             if (event.results) {
               setMemes(event.results);
             }
             setSearchState(null);
             setIsLoading(false);
           } else if (event.stage === 'error') {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/7a83c483-fce1-4f8b-beaf-98cf80f7146c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:handleSearch:error', message: 'Search error event', data: { error: event.error }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => {});
-            // #endregion
             console.error('Search error:', event.error);
             setSearchState(null);
             setIsLoading(false);
@@ -308,9 +287,6 @@ function App() {
         abortController.signal
       );
     } catch (error) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/7a83c483-fce1-4f8b-beaf-98cf80f7146c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'App.tsx:handleSearch:catch', message: 'Search exception', data: { error: String(error), errorName: (error as Error).name, isAbort: (error as Error).name === 'AbortError' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => {});
-      // #endregion
       if ((error as Error).name === 'AbortError') {
         // Search was cancelled - do nothing
         return;
@@ -335,10 +311,17 @@ function App() {
 
   // Handle logo click - reset to home
   const handleLogoClick = useCallback(() => {
+    // Cancel any ongoing search
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
     setMemes([]);
     setSearchQuery('');
     setHasSearched(false);
     setSelectedMeme(null);
+    setSearchState(null);
+    setIsLoading(false);
   }, []);
 
   // Handle meme click
@@ -377,7 +360,7 @@ function App() {
         {hasSearched ? (
           <MemeGrid
             memes={memes}
-            isLoading={isLoading && !searchState?.isStreaming}
+            isLoading={isLoading || !!searchState?.isStreaming}
             onMemeClick={handleMemeClick}
             searchQuery={searchQuery}
             emptyMessage="没有找到相关表情包"
