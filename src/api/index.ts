@@ -171,3 +171,100 @@ export async function getMeme(id: string): Promise<Meme> {
 
   return response.json();
 }
+
+// Search stage types
+export type SearchStage =
+  | 'query_expansion_start'
+  | 'thinking'
+  | 'query_expansion_done'
+  | 'embedding'
+  | 'searching'
+  | 'enriching'
+  | 'complete'
+  | 'error';
+
+// Search progress event from SSE
+export interface SearchProgressEvent {
+  stage: SearchStage;
+  message?: string;
+  thinking_text?: string;
+  is_delta?: boolean;
+  expanded_query?: string;
+  results?: Meme[];
+  total?: number;
+  query?: string;
+  collection?: string;
+  error?: string;
+}
+
+// Stream search memes with progress updates
+export async function searchMemesStream(
+  query: string,
+  topK: number = 20,
+  onProgress: (event: SearchProgressEvent) => void,
+  signal?: AbortSignal
+): Promise<void> {
+  const response = await fetch(`${API_BASE}/search/stream`, {
+    method: 'POST',
+    headers: getHeaders('application/json'),
+    body: JSON.stringify({
+      query,
+      top_k: topK,
+    }),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Search failed: ${response.statusText}`);
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error('Response body is not readable');
+  }
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // Process complete SSE events
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+      let currentEventType = 'progress';
+
+      for (const line of lines) {
+        if (line.startsWith('event: ')) {
+          currentEventType = line.slice(7).trim();
+        } else if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          try {
+            const event = JSON.parse(data) as SearchProgressEvent;
+            
+            // Normalize results if present
+            if (event.results) {
+              event.results = normalizeResults(event.results as unknown as SearchResponse['results']);
+            }
+            
+            // Set stage from event type if not present
+            if (!event.stage && currentEventType) {
+              event.stage = currentEventType as SearchStage;
+            }
+            
+            onProgress(event);
+          } catch (e) {
+            console.warn('Failed to parse SSE data:', data, e);
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}

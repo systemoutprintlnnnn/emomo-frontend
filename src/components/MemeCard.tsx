@@ -33,9 +33,15 @@ interface MemeCardProps {
 export default function MemeCard({ meme, index = 0, onClick }: MemeCardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleClick = () => {
     onClick?.(meme);
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setIsLoaded(true); // Stop showing skeleton
   };
 
   // Format score as percentage
@@ -60,21 +66,35 @@ export default function MemeCard({ meme, index = 0, onClick }: MemeCardProps) {
       {/* Image container */}
       <div className={styles.imageWrapper}>
         {/* Loading skeleton */}
-        {!isLoaded && <div className={`${styles.skeleton} skeleton`} />}
+        {!isLoaded && !imageError && <div className={`${styles.skeleton} skeleton`} />}
+
+        {/* Error placeholder */}
+        {imageError && (
+          <div className={styles.imageError}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+        )}
 
         {/* Meme image */}
-        <motion.img
-          src={meme.url || meme.original_url}
-          alt={meme.vlm_description || 'Meme'}
-          className={styles.image}
-          loading="lazy"
-          onLoad={() => setIsLoaded(true)}
-          animate={{
-            scale: isHovered ? 1.05 : 1,
-            opacity: isLoaded ? 1 : 0,
-          }}
-          transition={{ duration: 0.3 }}
-        />
+        {!imageError && (
+          <motion.img
+            src={meme.url || meme.original_url}
+            alt={meme.vlm_description || 'Meme'}
+            className={styles.image}
+            loading="lazy"
+            onLoad={() => setIsLoaded(true)}
+            onError={handleImageError}
+            animate={{
+              scale: isHovered ? 1.05 : 1,
+              opacity: isLoaded ? 1 : 0,
+            }}
+            transition={{ duration: 0.3 }}
+          />
+        )}
 
         {/* Hover overlay */}
         <motion.div

@@ -71,6 +71,30 @@
   object-fit: contain;
 }
 
+/* Image error */
+.imageError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+  color: var(--text-tertiary);
+  min-height: 200px;
+}
+
+.imageError svg {
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-md);
+  opacity: 0.5;
+}
+
+.imageError p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 /* GIF Badge */
 .gifBadge {
   position: absolute;
