@@ -1,19 +1,113 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Meme } from '../types';
 import styles from './MemeModal.module.css';
 
+/**
+ * Props for the MemeModal component.
+ */
 interface MemeModalProps {
+  /** The meme to display in the modal. If null, the modal is hidden. */
   meme: Meme | null;
+  /** Whether the modal is currently open. */
   isOpen: boolean;
+  /** Callback function to close the modal. */
   onClose: () => void;
 }
 
+/**
+ * Parses and cleans a tag string to make it user-friendly.
+ * Filters out hashes, numeric tags, and redundant information.
+ *
+ * @param tag - The raw tag string.
+ * @returns The cleaned tag string, or null if the tag should be discarded.
+ */
+function parseTag(tag: string): string | null {
+  // 过滤掉 MD5 哈希（32位十六进制字符）
+  if (/^[a-f0-9]{32}$/i.test(tag)) {
+    return null;
+  }
+
+  // 过滤掉纯数字或太短的标签
+  if (/^\d+$/.test(tag) || tag.length < 2) {
+    return null;
+  }
+
+  // 解析格式如 "000Contribution_贡献🇨🇳BQB"
+  // 尝试提取中文部分或有意义的部分
+  let parsed = tag;
+
+  // 移除开头的数字
+  parsed = parsed.replace(/^\d+/, '');
+
+  // 移除末尾的 "BQB"（表情包库标识）
+  parsed = parsed.replace(/BQB$/i, '');
+
+  // 如果有下划线，尝试提取中文部分
+  if (parsed.includes('_')) {
+    const parts = parsed.split('_');
+    // 优先选择包含中文的部分
+    const chinesePart = parts.find(p => /[\u4e00-\u9fa5]/.test(p));
+    if (chinesePart) {
+      parsed = chinesePart;
+    } else {
+      // 否则取最后一个非空部分
+      parsed = parts.filter(p => p.trim()).pop() || parsed;
+    }
+  }
+
+  // 移除表情符号（国旗等）但保留常用表情
+  parsed = parsed.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '');
+
+  // 清理空白
+  parsed = parsed.trim();
+
+  // 如果处理后太短或为空，返回 null
+  if (parsed.length < 2) {
+    return null;
+  }
+
+  return parsed;
+}
+
+/**
+ * Formats a list of tags by cleaning them and removing duplicates.
+ *
+ * @param tags - The list of raw tags.
+ * @returns An array of unique, cleaned tags.
+ */
+function formatTags(tags: string[] | undefined): string[] {
+  if (!tags || tags.length === 0) return [];
+
+  const formatted = tags
+    .map(parseTag)
+    .filter((tag): tag is string => tag !== null);
+
+  // 去重
+  return [...new Set(formatted)];
+}
+
+/**
+ * A modal component that displays a meme in detail.
+ * Allows downloading, copying image/link, and viewing metadata.
+ *
+ * @param props - The component props.
+ * @param props.meme - The meme object to display.
+ * @param props.isOpen - Controls the visibility of the modal.
+ * @param props.onClose - Handler to close the modal.
+ * @returns The rendered MemeModal component.
+ */
 export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const timeoutRefs = useRef<{ copied?: NodeJS.Timeout; downloaded?: NodeJS.Timeout }>({});
+  const timeoutRefs = useRef<{
+    copied?: ReturnType<typeof setTimeout>;
+    downloaded?: ReturnType<typeof setTimeout>;
+  }>({});
+
+  // 格式化标签
+  const displayTags = useMemo(() => formatTags(meme?.tags), [meme?.tags]);
 
   // Reset image error when meme changes
   useEffect(() => {
@@ -244,6 +338,31 @@ export default function MemeModal({ meme, isOpen, onClose }: MemeModalProps) {
                     AI 识别描述
                   </h4>
                   <p className={styles.description}>{meme.vlm_description}</p>
+                </div>
+              )}
+
+              {/* Meta info */}
+              <div className={styles.meta}>
+                {meme.format && (
+                  <span className={styles.metaItem}>
+                    <span className={styles.metaLabel}>格式:</span>
+                    <span className={styles.metaValue}>{meme.format.toUpperCase()}</span>
+                  </span>
+                )}
+                {meme.width && meme.height && (
+                  <span className={styles.metaItem}>
+                    <span className={styles.metaLabel}>尺寸:</span>
+                    <span className={styles.metaValue}>{meme.width} × {meme.height}</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Tags */}
+              {displayTags.length > 0 && (
+                <div className={styles.tags}>
+                  {displayTags.map((tag) => (
+                    <span key={tag} className={styles.tag}>{tag}</span>
+                  ))}
                 </div>
               )}
 

@@ -3,16 +3,41 @@ import type { Meme } from '../types';
 import MemeCard from './MemeCard';
 import styles from './MemeGrid.module.css';
 
+/**
+ * Props for the MemeGrid component.
+ */
 interface MemeGridProps {
+  /** The list of memes to display in the grid. */
   memes: Meme[];
+  /**
+   * Indicates whether the grid is in a loading state.
+   * If true, displays loading skeletons instead of memes.
+   * @default false
+   */
   isLoading?: boolean;
+  /**
+   * Callback function triggered when a meme card is clicked.
+   * @param meme - The meme data associated with the clicked card.
+   */
   onMemeClick?: (meme: Meme) => void;
+  /**
+   * Message to display when the meme list is empty.
+   * @default '暂无表情包'
+   */
   emptyMessage?: string;
+  /** The search query string, used to display results information. */
   searchQuery?: string;
+  /** An optional title for the grid section (e.g., "Recommended"). */
   title?: string;
 }
 
-// Loading skeleton component
+/**
+ * A loading skeleton component for a meme card.
+ *
+ * @param props - The component props.
+ * @param props.index - The index for animation delay.
+ * @returns The rendered SkeletonCard component.
+ */
 function SkeletonCard({ index }: { index: number }) {
   return (
     <motion.div
@@ -26,6 +51,19 @@ function SkeletonCard({ index }: { index: number }) {
   );
 }
 
+/**
+ * A component that displays a responsive grid of meme cards.
+ * Handles loading states, empty states, and section titles.
+ *
+ * @param props - The component props.
+ * @param props.memes - The list of memes to display.
+ * @param props.isLoading - Whether the data is loading.
+ * @param props.onMemeClick - Handler for meme click events.
+ * @param props.emptyMessage - Custom empty state message.
+ * @param props.searchQuery - The current search query.
+ * @param props.title - Optional section title.
+ * @returns The rendered MemeGrid component.
+ */
 export default function MemeGrid({
   memes,
   isLoading = false,
